@@ -24,8 +24,34 @@ document.addEventListener('DOMContentLoaded', function() {
     if (contactForm) {
         contactForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            alert('感谢您的消息！我会尽快回复您。');
-            this.reset();
+            
+            // 获取表单数据
+            const formData = new FormData(this);
+            const jsonData = {};
+            formData.forEach((value, key) => {
+                jsonData[key] = value;
+            });
+            
+            // 发送数据到n8n webhook
+            fetch('https://liusizhe.app.n8n.cloud/webhook/contact-form', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(jsonData)
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('感谢您的消息！我会尽快回复您。');
+                    this.reset();
+                } else {
+                    alert('发送失败，请稍后再试。');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('发送失败，请稍后再试。');
+            });
         });
     }
     
