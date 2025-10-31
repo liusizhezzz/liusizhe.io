@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
             submitButton.disabled = true;
 
             // 发送数据到n8n webhook
-            fetch('https://liusizhe.app.n8n.cloud/webhook/contact-form', {
+            fetch('https://liusizhe004.app.n8n.cloud/webhook/contact-form', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
