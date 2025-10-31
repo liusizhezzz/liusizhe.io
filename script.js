@@ -24,16 +24,24 @@ document.addEventListener('DOMContentLoaded', function() {
     if (contactForm) {
         contactForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             // 获取表单数据
             const formData = new FormData(this);
             const jsonData = {};
             formData.forEach((value, key) => {
                 jsonData[key] = value;
             });
-            
+
+            console.log('准备发送的数据:', jsonData);
+
+            const form = this;
+            const submitButton = form.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.textContent;
+            submitButton.textContent = '发送中...';
+            submitButton.disabled = true;
+
             // 发送数据到n8n webhook
-            fetch('https://liusizhe.app.n8n.cloud/webhook/contact-form', {
+            fetch('https://liusizhe.app.n8n.cloud/webhook-test/contact-form', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -41,16 +49,35 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify(jsonData)
             })
             .then(response => {
+                console.log('服务器响应状态:', response.status);
                 if (response.ok) {
-                    alert('感谢您的消息！我会尽快回复您。');
-                    this.reset();
+                    return response.text().then(text => {
+                        console.log('成功响应内容:', text);
+                        return { success: true, text: text };
+                    });
                 } else {
-                    alert('发送失败，请稍后再试。');
+                    return response.text().then(text => {
+                        console.log('错误响应内容:', text);
+                        return { success: false, status: response.status, text: text };
+                    });
+                }
+            })
+            .then(result => {
+                if (result.success) {
+                    alert('感谢您的消息！我会尽快回复您。');
+                    form.reset();
+                } else {
+                    alert(`发送失败，服务器返回状态: ${result.status}\n${result.text}`);
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                alert('发送失败，请稍后再试。');
+                console.error('网络错误详情:', error);
+                alert(`发送失败: ${error.message}\n请检查网络连接或稍后再试。`);
+            })
+            .finally(() => {
+                // 恢复按钮状态
+                submitButton.textContent = originalButtonText;
+                submitButton.disabled = false;
             });
         });
     }
