@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // 表单提交处理
-    const contactForm = document.querySelector('.contact-form');
+    const contactForm = document.querySelector('#contactForm');  // Changed this line
     if (contactForm) {
         contactForm.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -50,25 +50,12 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => {
                 console.log('服务器响应状态:', response.status);
-                if (response.ok) {
-                    return response.text().then(text => {
-                        console.log('成功响应内容:', text);
-                        return { success: true, text: text };
-                    });
-                } else {
-                    return response.text().then(text => {
-                        console.log('错误响应内容:', text);
-                        return { success: false, status: response.status, text: text };
-                    });
-                }
+                return response.json();  // Changed to parse JSON directly
             })
-            .then(result => {
-                if (result.success) {
-                    alert('感谢您的消息！我会尽快回复您。');
-                    form.reset();
-                } else {
-                    alert(`发送失败，服务器返回状态: ${result.status}\n${result.text}`);
-                }
+            .then(data => {
+                console.log('成功响应:', data);
+                alert('感谢您的消息！我会尽快回复您。');
+                form.reset();
             })
             .catch(error => {
                 console.error('网络错误详情:', error);
